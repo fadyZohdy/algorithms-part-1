@@ -1,3 +1,4 @@
+
 /**
   * Created by droidman on 3/25/17.
   */
@@ -5,47 +6,43 @@ case class FastCollinearPoints(points: Set[Point]) {
 
   def numberOfSegments: Int = getLinesWithPoints.size
 
-  def segments: Set[LineSegment] = {
+  def segments: Iterable[LineSegment] = {
     getLinesWithPoints.map{s =>
-     val sorted = mergeSort(s.toList)
+     val sorted = s.toList.sorted
      LineSegment(sorted(0), sorted(sorted.length-1))
     }
   }
 
-  def getLinesWithPoints: Set[Set[Point]] = {
-    points.foldLeft(Set.empty[Set[Point]]){(z, p) =>
-      val slopes = getSlopes(p)
-      val lines = getLines(slopes)
+  def getLinesWithPoints: Iterable[Set[Point]] = {
+    points.foldLeft(Iterable.empty[Set[Point]]){(z, p) =>
+      val lines = getLines(p)
       lines.flatMap { line =>
         val completeLine = line ++ Set(p)
-        if(completeLine.size < 4 || z.exists(s => completeLine.subsetOf(s))) z
+        if(completeLine.size < 4 && !isDuplicate(p, line)) z
         else Set(completeLine) ++ z
-      }.toSet
-    }
-  }
-
-  def getSlopes(point: Point) = {
-    points.toList.map(p => (p, point.slopeTo(p)))
-  }
-
-  def getLines(pointsWithSlopes: List[(Point, Double)]): Iterable[Set[Point]] =
-    pointsWithSlopes.groupBy(_._2).collect{ case (k, v) if v.length >= 3 => v.map(_._1).toSet }
-
-  def mergeSort(points: List[Point]): List[Point] = {
-    val n = points.length/2
-    if(n == 0) points
-    else {
-      def merge(xs: List[Point], ys: List[Point], sorted: List[Point]): List[Point] = (xs, ys) match {
-        case (xs, Nil) => sorted ++ xs
-        case (Nil, ys) => sorted ++ ys
-        case (x :: xt, y :: yt) =>
-          if (x < y) merge(xt, ys, sorted :+ x)
-          else merge(xs, yt, sorted :+ y)
       }
-
-      val (l, r) = points.splitAt(n)
-      merge(mergeSort(l), mergeSort(r), Nil)
     }
   }
 
+  /**
+    * check is this is the first point in the line or not
+    * if this is not the first point then we have had this line before
+    * because we iterate over the points in increasing order of their position
+    *
+    * @param p the anchor point
+    * @param line the other points that form a line with p
+    *  */
+  def isDuplicate(p: Point, line: Set[Point]): Boolean = {
+    line.forall(_ > p)
+  }
+
+
+  /**
+    * group the points by their slope with the anchor point then return only the groups of size three or more
+    * three is our minimum as the anchor point itself is not included in these groups
+    * @param point the anchor point
+    * @return sets of points with similar slope to the anchor point
+    */
+  def getLines(point: Point): Iterable[Set[Point]] =
+    points.groupBy(o => point.slopeTo(o)).collect{ case (k, v) if v.size >= 3 => v }
 }

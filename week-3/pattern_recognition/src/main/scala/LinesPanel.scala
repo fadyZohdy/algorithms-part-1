@@ -8,7 +8,7 @@ import java.awt.{BasicStroke, Color, Graphics2D, geom}
   */
 object LinesPanel {
 
-  def ui(lines: Set[LineSegment], points: Set[Point]) = new Panel {
+  def ui(lines: Iterable[LineSegment], points: Set[Point]) = new Panel {
 
     background = Color.white
     preferredSize = (1920, 1080)

@@ -16,7 +16,7 @@ class FastSpec extends FlatSpec {
       Input6.p6
     ))
 
-    assert(fast.segments == Set(
+    assert(fast.segments == List(
       LineSegment(Input6.p1, Input6.p4)
     ))
 
@@ -35,7 +35,7 @@ class FastSpec extends FlatSpec {
       Input8.p8
     ))
 
-    assert(fast.segments == Set(
+    assert(fast.segments == List(
       LineSegment(Input8.p2, Input8.p1),
       LineSegment(Input8.p6, Input8.p5)
     ))
@@ -55,7 +55,7 @@ class FastSpec extends FlatSpec {
       Input9.p9
     ))
 
-    assert(fast.segments == Set(
+    assert(fast.segments == List(
       LineSegment(Input9.p9, Input9.p1)
     ))
   }
